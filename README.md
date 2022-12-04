@@ -86,7 +86,8 @@ Turn the test tube and cut slowly and gently
     * If you are new to ESP32, please see the tutorial site
         * e.g. https://randomnerdtutorials.com/installing-the-esp32-board-in-arduino-ide-windows-instructions/
 5. Wire ESP32 and TCA9548A and SSD1306
-6. Assemble the housing
+    * See Wiring explained
+7. Assemble the housing
     * Pass the USB cable through the hole on the side
     * Fasten the housing top and bottom with 4 screws
     * The 4 screws on the front are decorations
@@ -95,7 +96,7 @@ Turn the test tube and cut slowly and gently
 ![assembly](image/assembly.png)
 
 ## How to use
-1. turn on USB power
+1. Turn on USB power
 2. "OLIXIE" title is displayed
 3. "WIFI..." is displayed
     * OLIXIE automatically connects to the last connected SSID
@@ -105,13 +106,13 @@ Turn the test tube and cut slowly and gently
     * If connection is successful, "SUCCESS" is displayed
     * OLIXIE will restart automatically
 5. The characters "NTP..." are displayed
-    * getting internet time
-    * If connection is successful, "SUCCESS" is displayed
-6. time is displayed
-    * finished start up
+    * Getting internet time
+    * If getting is successful, "SUCCESS" is displayed
+6. Time is displayed
+    * Finished start up
 
 ## Tips
-* standard time
+* Standard time
   * Default standard time is Japan
   * For countries other than Japan, set the standard time
     * OLIXIE.ino L25 `#define JST 3600*9`
