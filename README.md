@@ -1,6 +1,6 @@
 # OLIXIE
 
-![image1](image/OLIXIE_image0.png) ![image2](image/OLIXIE_image1.png)
+![image1](image/OLIXIE_image0.png) ![image2](image/OLIXIE_image1.gif)
 
 ## Overview
 * OLIXIE is a Nixie tube-style clock with 8 OLED displays.
