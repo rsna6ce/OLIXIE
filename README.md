@@ -67,15 +67,15 @@
 2. Customize SSD1306
     * Paint the OLED screen with an orange marker  
 Do not remove the screen protection sheet and cut tab of sheet  
-![ssd1366_0](image/ssd1366_0.png)
+![ssd1306_0](image/ssd1306_0.png)
     * Bend the pin header with radio pliers  
 bend slowly one by one  
-![ssd1366_1](image/ssd1366_1.png)
+![ssd1306_1](image/ssd1306_1.png)
     * Cut and paste the screen net (optional)  
 Paste the black double-sided tape on the top edge of the OLED  
-![ssd1366_2](image/ssd1366_2.png)
+![ssd1306_2](image/ssd1306_2.png)
     * Set OLED to housing, Pass the wire through the hole in the OELD pedestal  
-![ssd1366_3](image/ssd1366_3.png)
+![ssd1306_3](image/ssd1306_3.png)
 3. Customize test tube
     * Cut the test tube using the saw guide  
 Download the saw guide from my Thingiverse site  
