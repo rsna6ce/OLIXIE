@@ -7,7 +7,7 @@
 * OLIXIE requires USB power and 2.4GHz Wifi
 * OLIXIE sync internet time with ntp
 * OLIXIE connects to Wifi with WPS
-   * Also supports explicit SSID specification
+   * Also supports explicit SSID name
    
 ## Devices
 * ESP-32
@@ -55,7 +55,64 @@
 
 (N = 0 to 7, left->right)
 
-## housing 3D model
+## Housing 3D model
 * See my Thingiverse site
-* https://www.thingiverse.com/thing:5437130
+* https://www.thingiverse.com/thing:5437130  
 ![housing](image/housing.png)
+
+## How to build
+1. Build housing
+    * Download 3D models from my Thingiverse site
+    * Build it with 3D printer
+2. Customize SSD1306
+    * Paint the OLED screen with an orange marker  
+Do not remove the screen protection sheet and cut tab of sheet  
+![ssd1366_0](image/ssd1366_0.png)
+    * Bend the pin header with radio pliers  
+bend slowly one by one  
+![ssd1366_1](image/ssd1366_1.png)
+    * Cut and paste the screen net (optional)  
+Paste the black double-sided tape on the top edge of the OLED  
+![ssd1366_2](image/ssd1366_2.png)
+    * Set OLED to housing, Pass the wire through the hole in the OELD pedestal  
+![ssd1366_3](image/ssd1366_3.png)
+3. Customize test tube
+    * Cut the test tube using the saw guide  
+Download the saw guide from my Thingiverse site  
+Turn the test tube and cut slowly and gently  
+![test_tube](image/test_tube.png)
+4. Write program to ESP32
+    * OLIXIE.ino
+    * If you are new to ESP32, please see the tutorial site
+        * e.g. https://randomnerdtutorials.com/installing-the-esp32-board-in-arduino-ide-windows-instructions/
+5. Wire ESP32 and TCA9548A and SSD1306
+6. Assemble the housing
+    * Pass the USB cable through the hole on the side
+    * Fasten the housing top and bottom with 4 screws
+    * The 4 screws on the front are decorations
+    * Put the test tube on the pedestal
+
+## How to use
+1. turn on USB power
+2. "OLIXIE" title is displayed
+3. "WIFI..." is displayed
+    * OLIXIE automatically connects to the last connected SSID
+    * If connection is successful, "SUCCESS" is displayed and skip WPS
+4. "WPS..." is displayed
+    * Press the WPS button on your Wifi router
+    * If connection is successful, "SUCCESS" is displayed
+    * OLIXIE will restart automatically
+5. The characters "NTP..." are displayed
+    * getting internet time
+    * If connection is successful, "SUCCESS" is displayed
+6. time is displayed
+    * finished start up
+
+## Tips
+* standard time
+  * Default standard time is Japan
+  * For countries other than Japan, set the standard time
+    * OLIXIE.ino L25 `#define JST 3600*9`
+* SSID 
+  * When specifying the SSID explicitly, set ssid and password
+  * OLIXIE.ino L18, L19 `ssid` and `password`
