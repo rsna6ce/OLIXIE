@@ -55,6 +55,10 @@
 
 (N = 0 to 7, left->right)
 
+## Software development environment
+* Arduino IDE 1.8.19
+* Dependent library
+  * Adafruit SSD1306 2.5.7 
 ## Housing 3D model
 * See my Thingiverse site
 * https://www.thingiverse.com/thing:5437130  
