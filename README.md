@@ -21,7 +21,7 @@
   * Youmile TCA9548A (Compatible)
     * e.g. https://amazon.co.jp/dp/B084VNDMD8/
 * SSD1306
-　* Quantity: 8
+  * Quantity: 8
   * WayinTop I2C SSD1306 OLED 128x32 Display (Compatible)
     * e.g. https://amazon.co.jp/dp/B085C67PF1/
 * test tube
@@ -91,6 +91,8 @@ Turn the test tube and cut slowly and gently
     * Fasten the housing top and bottom with 4 screws
     * The 4 screws on the front are decorations
     * Put the test tube on the pedestal
+    * Paint the pedestal black (optional)  
+![assembly](image/assembly.png)
 
 ## How to use
 1. turn on USB power
