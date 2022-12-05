@@ -7,12 +7,13 @@
 #include <time.h>
 #include "fonts.h"
 
+#define WIRE_FREQ 400*1000 /*fast mode*/
 #define OLED_COUNT 8
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 32
 #define OLED_RESET     -1
 #define SCREEN_ADDRESS 0x3C
-Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET, WIRE_FREQ);
 
 // TTP223 capacitive switch
 #define PIN_SW 2
@@ -35,6 +36,7 @@ void setup()
     // i2c settings
     Serial.println("Wire.begin");
     Wire.begin();
+    Wire.setClock(WIRE_FREQ);
     for(int i=0; i<OLED_COUNT; i++) {
         switch_tca9548a(i);
         if(!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
@@ -288,6 +290,7 @@ const unsigned int scenario_roulette_ms = 7000;
 const unsigned int scenario_bold_ms = 800;
 unsigned int scenario_start_ms = 0;
 unsigned int prev_switch = SW_OFF;
+unsigned int divergence_count = 0;
 bool divergence_meter = false;
 void display_divergence_meter() {
     unsigned int past_ms = millis() - scenario_start_ms;
@@ -303,7 +306,7 @@ void display_divergence_meter() {
         bool bold = (scenario_blank_ms + max_roulette_ms < past_ms && past_ms < scenario_blank_ms + max_roulette_ms + scenario_bold_ms);
         for (int i=0; i<OLED_COUNT; i++) {
             if (past_ms-scenario_blank_ms < scenario[i].roulette_ms) {
-                display_ascii(i, '0' + ((past_ms+i)%10), false);
+                display_ascii(i, '0' + (((divergence_count+i)*7)%10), false);
             } else {
                 display_ascii(i, scenario[i].final_ascii, bold);
             }
@@ -311,6 +314,7 @@ void display_divergence_meter() {
     } else {
         divergence_meter = false;
     }
+    divergence_count++;
 }
 
 void loop()
