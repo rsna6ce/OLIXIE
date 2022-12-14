@@ -2,10 +2,16 @@
 #include <WiFi.h>
 #include "esp_wps.h"
 #include <Wire.h>
-#include <Adafruit_GFX.h>
-#include <Adafruit_SSD1306.h>
 #include <time.h>
 #include "fonts.h"
+
+//#define USE_U8G2
+#ifdef USE_U8G2
+ #include <U8g2lib.h> //u8g2 by oliver ver.2.33.25
+#else
+ #include <Adafruit_GFX.h>
+ #include <Adafruit_SSD1306.h>
+#endif
 
 #define WIRE_FREQ 400*1000 /*fast mode*/
 #define OLED_COUNT 8
@@ -13,7 +19,14 @@
 #define SCREEN_HEIGHT 32
 #define OLED_RESET     -1
 #define SCREEN_ADDRESS 0x3C
+#define PIN_SDA 21
+#define PIN_SCL 22
+
+#ifdef USE_U8G2
+U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C u8g2(U8G2_R0, PIN_SDA, PIN_SCL, U8X8_PIN_NONE);
+#else
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET, WIRE_FREQ);
+#endif
 
 // TTP223 capacitive switch
 #define PIN_SW 2
@@ -33,16 +46,37 @@ void setup()
 {
     Serial.begin(115200);
 
+#ifdef USE_U8G2
+    // convert font format Adafruit to u8g2
+    for (int i=0; i<(sizeof(font_table)/sizeof(FONT)); i++) {
+        unsigned char* p = font_table[i].bitmap;
+        for (int j=0; j<epd_bitmap_width*epd_bitmap_height/8; j++) {
+            unsigned char a = p[j];
+            a=(a & 0x0F)<<4 |(a & 0xF0)>>4;
+            a=(a & 0x33)<<2 |(a & 0xCC)>>2;
+            a=(a & 0x55)<<1 |(a & 0xAA)>>1;
+            p[j] = a;
+        }
+    }
+#endif
+
     // i2c settings
     Serial.println("Wire.begin");
     Wire.begin();
     Wire.setClock(WIRE_FREQ);
     for(int i=0; i<OLED_COUNT; i++) {
         switch_tca9548a(i);
+#ifdef USE_U8G2
+        u8g2.setBusClock(WIRE_FREQ);
+        u8g2.begin();
+        u8g2.setBitmapMode(false /* solid */);
+        u8g2.setDrawColor(1);
+#else
         if(!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
             Serial.println(F("SSD1306 allocation failed"));
             esp_restart();
         }
+#endif
     }
     char myname[] = {(char)0xff, 'O','L','I','X','I', 'E', (char)0xff};
     display_ascii(&myname[0], false);
@@ -221,11 +255,19 @@ const unsigned char* get_font_bitmap(char ascii_code, bool bold) {
 void display_ascii(int index_degit, char ascii_code, bool bold) {
     switch_tca9548a(index_degit);
     const unsigned char* bmp = get_font_bitmap(ascii_code, bold);
+#ifdef USE_U8G2
+    u8g2.clearBuffer();
+    if (bmp) {
+        u8g2.drawXBM( (u8g2.getDisplayWidth()-epd_bitmap_width), 0, epd_bitmap_width, epd_bitmap_height, bmp);
+    }
+    u8g2.sendBuffer();
+#else
     display.clearDisplay();
     if (bmp) {
         display.drawBitmap((display.width()-epd_bitmap_width ), 0, bmp, epd_bitmap_width, epd_bitmap_height, 1);
     }
     display.display();
+#endif
 }
 
 void display_ascii(char *ascii_codes, bool bold) {
