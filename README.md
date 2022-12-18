@@ -27,6 +27,10 @@
 * test tube
   * uxcell plastic test tube With cork stopper 20x153 mm
     * e.g. https://amazon.co.jp/dp/B09BF2LPJZ/
+* TTP223
+  * optional (for Divergence meter mode switch)
+  * KKHMF capacitive touch switch (Compatible)
+    * e.g. https://amazon.co.jp/dp/B079BKVT98/
 * screw
   * M3x8
   * Quantity: 8
@@ -45,6 +49,9 @@
 | VIN | TCA9548A | VIN |
 | D21 | TCA9548A | SDA |
 | D22 | TCA9548A | SCL |
+| GMD | TTP223 | GND |
+| 3V3 | TTP223 | VCC |
+| D2  | TTP223 | I/O |
   
 | SSD1306(N) pin	| device | pin |
 | ---- | ---- | ---- |
@@ -114,6 +121,8 @@ Turn the test tube and cut slowly and gently
     * If getting is successful, "SUCCESS" is displayed
 6. Time is displayed
     * Finished start up
+7. (optional) Divergence meter mode
+    * Touch the switch to enter divergence meter mode
 
 ## Tips
 * Standard time
@@ -123,3 +132,10 @@ Turn the test tube and cut slowly and gently
 * SSID 
   * When specifying the SSID explicitly, set ssid and password
   * OLIXIE.ino L18, L19 `ssid` and `password`
+* u8g2
+  * OLED SSD1306 may not support Adafruit library depending on manufacturer
+  * If u8g2 library is used, Activate definition
+    * OLIXIE.ino L8 #define USE_U8G2
+* boot loop
+  * If the logo display and WIFI display are repeated, the USB power is insufficient
+  * Use a USB power supply with sufficient power capacity
