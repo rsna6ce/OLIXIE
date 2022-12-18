@@ -5,7 +5,7 @@
 #include <time.h>
 #include "fonts.h"
 
-//#define USE_U8G2
+#define USE_U8G2
 #ifdef USE_U8G2
  #include <U8g2lib.h> //u8g2 by oliver ver.2.33.25
 #else
@@ -14,7 +14,7 @@
 #endif
 
 #define WIRE_FREQ 400*1000 /*fast mode*/
-#define OLED_COUNT 8
+#define OLED_COUNT 2
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 32
 #define OLED_RESET     -1
@@ -71,6 +71,7 @@ void setup()
         u8g2.begin();
         u8g2.setBitmapMode(false /* solid */);
         u8g2.setDrawColor(1);
+        u8g2.setFlipMode(1);
 #else
         if(!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
             Serial.println(F("SSD1306 allocation failed"));
@@ -78,7 +79,7 @@ void setup()
         }
 #endif
     }
-    char myname[] = {(char)0xff, 'O','L','I','X','I', 'E', (char)0xff};
+    char myname[] = {(char)0xff, (char)0xff};
     display_ascii(&myname[0], false);
     delay(3*1000);
 
@@ -258,13 +259,37 @@ void display_ascii(int index_degit, char ascii_code, bool bold) {
 #ifdef USE_U8G2
     u8g2.clearBuffer();
     if (bmp) {
-        u8g2.drawXBM( (u8g2.getDisplayWidth()-epd_bitmap_width), 0, epd_bitmap_width, epd_bitmap_height, bmp);
+        //u8g2.drawXBM( (u8g2.getDisplayWidth()-epd_bitmap_width), 0, epd_bitmap_width, epd_bitmap_height, bmp);
+        u8g2.drawXBM( 4, 0, epd_bitmap_width, epd_bitmap_height, bmp);
     }
     u8g2.sendBuffer();
 #else
     display.clearDisplay();
     if (bmp) {
         display.drawBitmap((display.width()-epd_bitmap_width ), 0, bmp, epd_bitmap_width, epd_bitmap_height, 1);
+    }
+    display.display();
+#endif
+}
+void display_ascii2(int index_degit, char ascii_code, char ascii_code2, bool bold, bool bold2) {
+    switch_tca9548a(index_degit);
+    const unsigned char* bmp = get_font_bitmap(ascii_code, bold);
+    const unsigned char* bmp2 = get_font_bitmap(ascii_code2, bold2);
+    unsigned char bmp_or[epd_bitmap_width*epd_bitmap_height/8];
+    for (int i=0; i<epd_bitmap_width*epd_bitmap_height/8; i++) {
+        bmp_or[i] = bmp[i] ^ bmp2[i];
+    }
+#ifdef USE_U8G2
+    //u8g2.clearBuffer();
+    if (bmp) {
+        //u8g2.drawXBM( (u8g2.getDisplayWidth()-epd_bitmap_width), 0, epd_bitmap_width, epd_bitmap_height, bmp_or);
+        u8g2.drawXBM( 4, 0, epd_bitmap_width, epd_bitmap_height, bmp_or);
+    }
+    u8g2.sendBuffer();
+#else
+    display.clearDisplay();
+    if (bmp) {
+        display.drawBitmap((display.width()-epd_bitmap_width ), 0, bmp_or, epd_bitmap_width, epd_bitmap_height, 1);
     }
     display.display();
 #endif
@@ -294,19 +319,32 @@ void display_clock() {
     if (prev_sec != tm->tm_sec) {
         prev_sec = tm->tm_sec;
         colon_blink_counter = 0;
-        display_ascii(0, '0'+tm->tm_hour/10, false);
-        display_ascii(1, '0'+tm->tm_hour%10, false);
-        display_ascii(2, ':', false);
-        display_ascii(3, '0'+tm->tm_min/10, false);
-        display_ascii(4, '0'+tm->tm_min%10, false);
-        display_ascii(5, ':', false);
-        display_ascii(6, '0'+tm->tm_sec/10, false);
-        display_ascii(7, '0'+tm->tm_sec%10, false);
-    } else {
-        // ':' blink
-        if (colon_blink_counter == 50) {
-            display_ascii(2, ' ', false);
-            display_ascii(5, ' ', false);
+        
+        int sec_mod = prev_sec % 2;
+        for (int i=0; i<2; i++) {
+            if (sec_mod == 0) {
+                display_ascii(0, '0'+tm->tm_hour/10, false);
+                display_ascii2(1, '0'+tm->tm_hour%10, 0xfd, false, false);
+            } else if (sec_mod == 1) {
+                display_ascii2(0, '0'+tm->tm_min/10, 0xfe, false, false);
+                //display_ascii2(1, '0'+tm->tm_min%10, 0xfd, false, false);
+                display_ascii(1, '0'+tm->tm_min%10, false);
+            } else if (sec_mod == 2) {
+                display_ascii2(0, '0'+tm->tm_sec/10, 0xfe, false, false);
+                display_ascii(1, '0'+tm->tm_sec%10, false);
+            }
+            delay(240);
+            if (sec_mod == 0) {
+                display_ascii(0, '0'+tm->tm_hour/10, false);
+                display_ascii(1, '0'+tm->tm_hour%10, false);
+            } else if (sec_mod == 1) {
+                display_ascii(0, '0'+tm->tm_min/10, false);
+                display_ascii(1, '0'+tm->tm_min%10, false);
+            } else if (sec_mod == 2) {
+                display_ascii(0, '0'+tm->tm_sec/10, false);
+                display_ascii(1, '0'+tm->tm_sec%10, false);
+            }
+            if (i==0) {delay(240);}
         }
     }
     colon_blink_counter++;
