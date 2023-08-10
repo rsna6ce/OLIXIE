@@ -284,12 +284,20 @@ void display_ascii(char *ascii_codes, bool bold) {
 
 
 static int prev_sec = -1;
+static int prev_mday = -1;
 static int colon_blink_counter = 0;
 void display_clock() {
     time_t t;
     struct tm *tm;
     t = time(NULL);
     tm = localtime(&t);
+
+    if (prev_mday != tm->tm_mday) {
+        prev_mday = tm->tm_mday;
+        configTime(JST, 0, "ntp.nict.jp", "ntp.jst.mfeed.ad.jp");
+        struct tm timeinfo;
+        getLocalTime(&timeinfo);
+    }
 
     if (prev_sec != tm->tm_sec) {
         prev_sec = tm->tm_sec;
@@ -359,11 +367,15 @@ void display_divergence_meter() {
     divergence_count++;
 }
 
+uint64_t previous_millis = 0;
 void loop()
 {
-    if (wifi_status != WL_CONNECTED) {
-        delay(100);
-        return;
+    uint64_t current_millis = millis();
+    if ((WiFi.status() != WL_CONNECTED) && (current_millis - previous_millis >= WIFI_TIMEOUT*2)) {
+        display_ascii("RECONN..", false);
+        WiFi.disconnect();
+        WiFi.reconnect();
+        previous_millis = current_millis;
     }
     unsigned int curr_switch = digitalRead(PIN_SW);
     if (prev_switch != curr_switch) {
