@@ -39,7 +39,7 @@ const char* password = "";
 
 static int wifi_status = WL_DISCONNECTED;
 static bool wps_success = false;
-#define WIFI_TIMEOUT 10
+#define WIFI_TIMEOUT_SEC 10
 #define WPS_TIMEOUT 120
 #define JST 3600*9
 void setup()
@@ -92,7 +92,7 @@ void setup()
         // ssid last connected
         WiFi.begin();
     }
-    for (int i=0; (i<WIFI_TIMEOUT*2)&&(wifi_status!= WL_CONNECTED); i++) {
+    for (int i=0; (i<WIFI_TIMEOUT_SEC*2)&&(wifi_status!= WL_CONNECTED); i++) {
         Serial.println(".");
         wifi_status = WiFi.status();
         delay(500);
@@ -371,7 +371,7 @@ uint64_t previous_millis = 0;
 void loop()
 {
     uint64_t current_millis = millis();
-    if ((WiFi.status() != WL_CONNECTED) && (current_millis - previous_millis >= WIFI_TIMEOUT*2)) {
+    if ((WiFi.status() != WL_CONNECTED) && (current_millis - previous_millis >= WIFI_TIMEOUT_SEC*1000*2)) {
         display_ascii("RECONN..", false);
         WiFi.disconnect();
         WiFi.reconnect();
