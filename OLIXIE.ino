@@ -34,8 +34,12 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET, WIRE_FR
 #define SW_OFF LOW
 
 // set ssid and password to use specific ssid (if not set WPS available)
-const char* ssid = "";
-const char* password = "";
+char* ssid = "";
+char* password = "";
+
+const int ssid_pass_buff_len = 64;
+char ssid_buff[ssid_pass_buff_len]={};
+char pass_buff[ssid_pass_buff_len]={};
 
 static int wifi_status = WL_DISCONNECTED;
 static bool wps_success = false;
@@ -80,7 +84,18 @@ void setup()
     }
     char myname[] = {(char)0xff, 'O','L','I','X','I', 'E', (char)0xff};
     display_ascii(&myname[0], false);
+    
+    Serial.println("To specify the SSID, press the y key within 3 seconds.");
     delay(3*1000);
+    if (Serial.available() > 0) {
+        int inmyte = Serial.read();
+        if (inmyte == 'y') {
+            String frush_str = Serial.readString(); // flush buffer
+            input_ssid_pass(ssid_buff, pass_buff);
+            ssid = ssid_buff;
+            password = pass_buff;
+        }
+    }
 
     // try Wifi connection
     Serial.println("WiFi.begin");
@@ -100,7 +115,7 @@ void setup()
     if (wifi_status == WL_CONNECTED) {
         Serial.println("");
         Serial.print("Connected to ");
-        Serial.println(ssid);
+        Serial.println(WiFi.SSID());
         Serial.print("IP address: ");
         Serial.println(WiFi.localIP());
         display_ascii("SUCCESS.", false);
@@ -154,6 +169,48 @@ void setup()
 
     // switch
     pinMode(PIN_SW, INPUT_PULLUP);
+}
+
+// Serial.readStringUntil do now work in ESP32...
+String SerialReasStringUntilCRLF() {
+    Serial.setTimeout(100);
+    String ret = "";
+    String temp_str = "";
+    while (true) {
+        if (Serial.available() > 0) {
+            temp_str = Serial.readString();
+            if (temp_str.endsWith("\n") || temp_str.endsWith("\r")) {
+                temp_str.replace("\n", "");
+                temp_str.replace("\r", "");
+                ret += temp_str;
+                break;
+            } else {
+                ret += temp_str;
+            }
+        }
+    }
+    return ret;
+}
+
+void input_ssid_pass(char* ssid, char* pass) {
+    while(true) {
+        Serial.println("input SSID and press Enter.");
+        String temp_ssid = SerialReasStringUntilCRLF();
+
+        Serial.println("input password and press Enter.");
+        String temp_pass = SerialReasStringUntilCRLF();
+
+        Serial.println("SSID: " + temp_ssid + "\r\n" +
+                       "pass: " + temp_pass + "\r\n" +
+                       "OK? input yes or no and Enter key.");
+        String temp_ret = SerialReasStringUntilCRLF();
+        if (temp_ret == "yes") {
+            temp_ssid.toCharArray(ssid, ssid_pass_buff_len);
+            temp_pass.toCharArray(pass, ssid_pass_buff_len);
+            break;
+        }
+    }
+    return;
 }
 
 /******** from WPS example ********/
