@@ -125,6 +125,7 @@ void setup()
         Serial.println("Failed to connect");
         Serial.println("Starting WPS");
         display_ascii("WPS.....", false);
+        WiFi.disconnect();
         WiFi.onEvent(WiFiEvent);
         WiFi.mode(WIFI_MODE_STA);
         wpsInitConfig();
