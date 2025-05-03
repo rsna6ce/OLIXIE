@@ -1,5 +1,6 @@
 #include <string.h>
 #include <WiFi.h>
+#include <esp_task_wdt.h>
 #include "esp_wps.h"
 #include <Wire.h>
 #include <time.h>
@@ -21,6 +22,7 @@
 #define SCREEN_ADDRESS 0x3C
 #define PIN_SDA 21
 #define PIN_SCL 22
+#define SCREEN_CONTRAST 200 /*0~255 default=0x8F*/
 
 #ifdef USE_U8G2
 U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C u8g2(U8G2_R0, PIN_SDA, PIN_SCL, U8X8_PIN_NONE);
@@ -75,11 +77,15 @@ void setup()
         u8g2.begin();
         u8g2.setBitmapMode(false /* solid */);
         u8g2.setDrawColor(1);
+        //u8g2.setContrast(SCREEN_CONTRAST);
 #else
         if(!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
             Serial.println(F("SSD1306 allocation failed"));
             esp_restart();
         }
+        //display.setContrast(SCREEN_CONTRAST); /*not impremented*/
+        display.ssd1306_command(0x81); // contrast command
+        display.ssd1306_command(SCREEN_CONTRAST);
 #endif
     }
     char myname[] = {(char)0xff, 'O','L','I','X','I', 'E', (char)0xff};
@@ -170,6 +176,15 @@ void setup()
 
     // switch
     pinMode(PIN_SW, INPUT_PULLUP);
+
+    // watchdog timer
+    esp_task_wdt_config_t wdt_config = {
+        .timeout_ms = 4000,  // 4sec
+        .idle_core_mask = 0,
+        .trigger_panic = true
+    };
+    esp_task_wdt_init(&wdt_config);
+    esp_task_wdt_add(NULL);
 }
 
 // Serial.readStringUntil do now work in ESP32...
@@ -449,4 +464,6 @@ void loop()
         display_clock();
         delay(10);
     }
+    // watchdog timer reset
+    esp_task_wdt_reset();
 }
